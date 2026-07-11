@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Star, Zap, Chrome as Home } from 'lucide-react';
+import { Zap, Star, Chrome as Home } from 'lucide-react';
 import { useGameStore } from '../store';
 
 export function ScoreBar() {

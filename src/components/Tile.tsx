@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ALL_LANGUAGES, type Tile as TileType } from '../data/tiles';
+import { LANGUAGES, type Tile as TileType } from '../data/tiles';
 
 interface TileProps {
   tile: TileType;
@@ -10,7 +10,7 @@ interface TileProps {
 }
 
 export function TileView({ tile, row, col, selected, onClick }: TileProps) {
-  const def = ALL_LANGUAGES[tile.type];
+  const def = LANGUAGES[tile.type];
 
   return (
     <motion.button
@@ -28,11 +28,11 @@ export function TileView({ tile, row, col, selected, onClick }: TileProps) {
       onClick={onClick}
       data-row={row}
       data-col={col}
-      className={`relative w-full aspect-square rounded-lg bg-gradient-to-br ${def.gradient} flex items-center justify-center shadow-md ${def.glow} border border-white/20 ${
-        selected ? 'ring-4 ring-white scale-110 z-10' : ''
+      className={`relative w-full aspect-square rounded-lg ${def.bg} flex items-center justify-center shadow-sm border border-white/10 ${
+        selected ? `ring-4 ${def.ring} scale-110 z-10` : ''
       }`}
     >
-      <span className="font-mixed text-[10px] sm:text-xs font-bold text-white text-center px-0.5 leading-tight drop-shadow break-words">
+      <span className={`font-mixed text-[10px] sm:text-xs font-bold ${def.text} text-center leading-tight px-1`}>
         {def.name}
       </span>
     </motion.button>

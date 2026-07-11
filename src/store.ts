@@ -4,8 +4,6 @@ import {
   findMatches,
   applyGravityAndRefill,
   hasPossibleMoves,
-  pickActiveTypes,
-  GRID_SIZE,
   type Tile,
   type Difficulty,
   difficultyConfig,
@@ -17,13 +15,11 @@ interface GameState {
   screen: Screen;
   difficulty: Difficulty;
   grid: Tile[][];
-  activeTypes: number[];
   selected: [number, number] | null;
   score: number;
   movesLeft: number;
   target: number;
   busy: boolean;
-  shakeId: number;
 
   startGame: (difficulty: Difficulty) => void;
   selectTile: (r: number, c: number) => void;
@@ -52,34 +48,29 @@ export const useGameStore = create<GameState>((set, get) => ({
   screen: 'start',
   difficulty: 'medium',
   grid: [],
-  activeTypes: [],
   selected: null,
   score: 0,
   movesLeft: 0,
   target: 0,
   busy: false,
-  shakeId: 0,
 
   startGame: (difficulty) => {
-    const activeTypes = pickActiveTypes();
-    let grid = createGrid(activeTypes);
+    let grid = createGrid();
     let safety = 0;
     while (findMatches(grid).size > 0 && safety < 20) {
-      grid = createGrid(activeTypes);
+      grid = createGrid();
       safety++;
     }
-    if (!hasPossibleMoves(grid)) grid = createGrid(activeTypes);
+    if (!hasPossibleMoves(grid)) grid = createGrid();
     set({
       screen: 'playing',
       difficulty,
       grid,
-      activeTypes,
       selected: null,
       score: 0,
       movesLeft: difficultyConfig[difficulty].moves,
       target: difficultyConfig[difficulty].target,
       busy: false,
-      shakeId: 0,
     });
   },
 
@@ -106,7 +97,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     const swapped = swapTiles(state.grid, sr, sc, r, c);
     const matches = findMatches(swapped);
     if (matches.size === 0) {
-      set({ grid: swapped, selected: null, shakeId: state.shakeId + 1 });
+      set({ grid: swapped, selected: null });
       setTimeout(() => {
         const s = get();
         set({ grid: swapTiles(s.grid, sr, sc, r, c) });
@@ -115,20 +106,18 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
 
     set({ grid: swapped, selected: null, busy: true, movesLeft: state.movesLeft - 1 });
-    processCascades(swapped, matches, state.activeTypes, set, get);
+    processCascades(swapped, matches, set, get);
   },
 
   resetGame: () => {
     set({
       screen: 'start',
       grid: [],
-      activeTypes: [],
       selected: null,
       score: 0,
       movesLeft: 0,
       target: 0,
       busy: false,
-      shakeId: 0,
     });
   },
 }));
@@ -136,7 +125,6 @@ export const useGameStore = create<GameState>((set, get) => ({
 function processCascades(
   grid: Tile[][],
   matches: Set<string>,
-  activeTypes: number[],
   set: (partial: Partial<GameState>) => void,
   get: () => GameState,
 ) {
@@ -159,7 +147,7 @@ function processCascades(
     set({ grid: currentGrid, score: Math.floor(totalScore) });
 
     setTimeout(() => {
-      currentGrid = applyGravityAndRefill(currentGrid, cleared, activeTypes);
+      currentGrid = applyGravityAndRefill(currentGrid, cleared);
       set({ grid: currentGrid });
 
       const newMatches = findMatches(currentGrid);
@@ -176,8 +164,7 @@ function processCascades(
         });
         if (!won && !lost && !hasPossibleMoves(currentGrid)) {
           setTimeout(() => {
-            const fresh = createGrid(activeTypes);
-            set({ grid: fresh });
+            set({ grid: createGrid() });
           }, 300);
         }
       }

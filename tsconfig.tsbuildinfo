@@ -1,1 +1,1 @@
-{"root":["./src/App.tsx","./src/main.tsx","./src/store.ts","./src/components/Match3Board.tsx","./src/components/ScoreBar.tsx","./src/components/StartScreen.tsx","./src/components/Tile.tsx","./src/components/WinModal.tsx","./src/data/tiles.ts"],"version":"5.9.3"}
+{"root":["./src/App.tsx","./src/main.tsx","./src/store.ts","./src/vite-env.d.ts","./src/components/Match3Board.tsx","./src/components/ScoreBar.tsx","./src/components/StartScreen.tsx","./src/components/Tile.tsx","./src/components/WinModal.tsx","./src/data/tiles.ts"],"version":"5.9.3"}

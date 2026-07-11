@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { Trophy, RefreshCw, Chrome as Home, Frown } from 'lucide-react';
 import { useGameStore } from '../store';
-import { difficultyConfig } from '../data/tiles';
 
 export function WinModal() {
   const screen = useGameStore((s) => s.screen);
@@ -37,7 +36,7 @@ export function WinModal() {
           {won ? <Trophy className="w-10 h-10 text-amber-900" /> : <Frown className="w-10 h-10 text-slate-300" />}
         </motion.div>
 
-        <h2 className="font-bengali text-3xl font-bold text-zen-400 mb-1">
+        <h2 className="font-mixed text-3xl font-bold text-zen-400 mb-1">
           {won ? 'দারুণ!' : 'আবার চেষ্টা করুন'}
         </h2>
         <p className="font-display text-slate-400 text-sm mb-6">
