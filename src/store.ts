@@ -4,6 +4,7 @@ import {
   findMatches,
   applyGravityAndRefill,
   hasPossibleMoves,
+  pickActiveTypes,
   GRID_SIZE,
   type Tile,
   type Difficulty,
@@ -16,6 +17,7 @@ interface GameState {
   screen: Screen;
   difficulty: Difficulty;
   grid: Tile[][];
+  activeTypes: number[];
   selected: [number, number] | null;
   score: number;
   movesLeft: number;
@@ -50,6 +52,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   screen: 'start',
   difficulty: 'medium',
   grid: [],
+  activeTypes: [],
   selected: null,
   score: 0,
   movesLeft: 0,
@@ -58,17 +61,19 @@ export const useGameStore = create<GameState>((set, get) => ({
   shakeId: 0,
 
   startGame: (difficulty) => {
-    let grid = createGrid();
+    const activeTypes = pickActiveTypes();
+    let grid = createGrid(activeTypes);
     let safety = 0;
     while (findMatches(grid).size > 0 && safety < 20) {
-      grid = createGrid();
+      grid = createGrid(activeTypes);
       safety++;
     }
-    if (!hasPossibleMoves(grid)) grid = createGrid();
+    if (!hasPossibleMoves(grid)) grid = createGrid(activeTypes);
     set({
       screen: 'playing',
       difficulty,
       grid,
+      activeTypes,
       selected: null,
       score: 0,
       movesLeft: difficultyConfig[difficulty].moves,
@@ -110,13 +115,14 @@ export const useGameStore = create<GameState>((set, get) => ({
     }
 
     set({ grid: swapped, selected: null, busy: true, movesLeft: state.movesLeft - 1 });
-    processCascades(swapped, matches, set, get);
+    processCascades(swapped, matches, state.activeTypes, set, get);
   },
 
   resetGame: () => {
     set({
       screen: 'start',
       grid: [],
+      activeTypes: [],
       selected: null,
       score: 0,
       movesLeft: 0,
@@ -130,6 +136,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 function processCascades(
   grid: Tile[][],
   matches: Set<string>,
+  activeTypes: number[],
   set: (partial: Partial<GameState>) => void,
   get: () => GameState,
 ) {
@@ -152,7 +159,7 @@ function processCascades(
     set({ grid: currentGrid, score: Math.floor(totalScore) });
 
     setTimeout(() => {
-      currentGrid = applyGravityAndRefill(currentGrid, cleared);
+      currentGrid = applyGravityAndRefill(currentGrid, cleared, activeTypes);
       set({ grid: currentGrid });
 
       const newMatches = findMatches(currentGrid);
@@ -169,7 +176,7 @@ function processCascades(
         });
         if (!won && !lost && !hasPossibleMoves(currentGrid)) {
           setTimeout(() => {
-            const fresh = createGrid();
+            const fresh = createGrid(activeTypes);
             set({ grid: fresh });
           }, 300);
         }

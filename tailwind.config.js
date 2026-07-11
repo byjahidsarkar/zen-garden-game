@@ -6,6 +6,15 @@ export default {
       fontFamily: {
         display: ['Baloo 2', 'system-ui', 'sans-serif'],
         bengali: ['Noto Sans Bengali', 'sans-serif'],
+        mixed: [
+          'Noto Sans Bengali', 'Noto Sans Devanagari', 'Noto Sans Arabic',
+          'Noto Sans Hebrew', 'Noto Sans Tamil', 'Noto Sans Telugu',
+          'Noto Sans Kannada', 'Noto Sans Malayalam', 'Noto Sans Gurmukhi',
+          'Noto Sans Gujarati', 'Noto Sans Sinhala', 'Noto Sans Georgian',
+          'Noto Sans Armenian', 'Noto Sans Khmer', 'Noto Sans Thai',
+          'Noto Sans KR', 'Noto Sans JP', 'Noto Sans SC', 'Noto Sans TC',
+          'Noto Sans Burmese', 'Baloo 2', 'system-ui', 'sans-serif',
+        ],
       },
       colors: {
         zen: { 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488' },

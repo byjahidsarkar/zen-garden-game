@@ -22,10 +22,10 @@ export function StartScreen() {
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           className="font-bengali text-5xl font-bold text-zen-400 drop-shadow-lg"
         >
-          বাংলা ক্যান্ডি
+          লিঙ্গো ম্যাচ
         </motion.h1>
         <p className="font-display text-slate-400 mt-2 text-sm tracking-wide">
-          Swap adjacent tiles to match 3 or more
+          Swap adjacent tiles to match 3 or more languages
         </p>
       </div>
 

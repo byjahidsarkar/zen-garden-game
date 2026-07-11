@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { TILE_TYPES, type Tile as TileType } from '../data/tiles';
+import { ALL_LANGUAGES, type Tile as TileType } from '../data/tiles';
 
 interface TileProps {
   tile: TileType;
@@ -10,7 +10,7 @@ interface TileProps {
 }
 
 export function TileView({ tile, row, col, selected, onClick }: TileProps) {
-  const def = TILE_TYPES[tile.type];
+  const def = ALL_LANGUAGES[tile.type];
 
   return (
     <motion.button
@@ -32,9 +32,8 @@ export function TileView({ tile, row, col, selected, onClick }: TileProps) {
         selected ? 'ring-4 ring-white scale-110 z-10' : ''
       }`}
     >
-      <span className="text-xl sm:text-2xl drop-shadow">{def.emoji}</span>
-      <span className="absolute bottom-0.5 right-1 font-bengali text-[10px] font-bold text-white/70">
-        {def.char}
+      <span className="font-mixed text-[10px] sm:text-xs font-bold text-white text-center px-0.5 leading-tight drop-shadow break-words">
+        {def.name}
       </span>
     </motion.button>
   );
