@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['Poppins', 'system-ui', 'sans-serif'],
+        display: ['Baloo 2', 'system-ui', 'sans-serif'],
         bengali: ['Noto Sans Bengali', 'sans-serif'],
       },
       colors: {
