@@ -6,18 +6,18 @@ export interface BengaliChar {
 }
 
 export const characters: BengaliChar[] = [
-  { id: 'ka', character: 'ক', phonetic: 'ka', emoji: '🦁' },
-  { id: 'kha', character: 'খ', phonetic: 'kha', emoji: '🐘' },
-  { id: 'ga', character: 'গ', phonetic: 'ga', emoji: '🐯' },
-  { id: 'gha', character: 'ঘ', phonetic: 'gha', emoji: '🦒' },
-  { id: 'nga', character: 'ঙ', phonetic: 'nga', emoji: '🐒' },
-  { id: 'cha', character: 'চ', phonetic: 'cha', emoji: '🦜' },
-  { id: 'chha', character: 'ছ', phonetic: 'chha', emoji: '🦋' },
-  { id: 'ja', character: 'জ', phonetic: 'ja', emoji: '🐍' },
-  { id: 'jha', character: 'ঝ', phonetic: 'jha', emoji: '🐊' },
-  { id: 'nya', character: 'ঞ', phonetic: 'nya', emoji: '🦊' },
-  { id: 'ta', character: 'ট', phonetic: 'ta', emoji: '🐢' },
-  { id: 'tha', character: 'ঠ', phonetic: 'tha', emoji: '🦎' },
+  { id: 'a', character: 'অ', phonetic: 'a', emoji: '🅰️' },
+  { id: 'aa', character: 'আ', phonetic: 'aa', emoji: '🌟' },
+  { id: 'i', character: 'ই', phonetic: 'i', emoji: '🐝' },
+  { id: 'ii', character: 'ঈ', phonetic: 'ii', emoji: '🦋' },
+  { id: 'u', character: 'উ', phonetic: 'u', emoji: '🦉' },
+  { id: 'uu', character: 'ঊ', phonetic: 'uu', emoji: '🌙' },
+  { id: 'ri', character: 'ঋ', phonetic: 'ri', emoji: '🦁' },
+  { id: 'e', character: 'এ', phonetic: 'e', emoji: '🦅' },
+  { id: 'oi', character: 'ঐ', phonetic: 'oi', emoji: '🌊' },
+  { id: 'o', character: 'ও', phonetic: 'o', emoji: '☀️' },
+  { id: 'ou', character: 'ঔ', phonetic: 'ou', emoji: '🪷' },
+  { id: 'ka', character: 'ক', phonetic: 'ka', emoji: '🦘' },
 ];
 
 export interface CardData {
