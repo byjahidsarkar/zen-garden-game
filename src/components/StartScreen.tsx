@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useGameStore } from '../store';
-import { difficultyConfig, type Difficulty } from '../data/characters';
+import { difficultyConfig, type Difficulty } from '../data/tiles';
 
 const difficulties: Difficulty[] = ['easy', 'medium', 'hard'];
 
@@ -20,12 +20,12 @@ export function StartScreen() {
         <motion.h1
           animate={{ scale: [1, 1.03, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          className="font-bengali text-6xl font-bold text-zen-400 drop-shadow-lg"
+          className="font-bengali text-5xl font-bold text-zen-400 drop-shadow-lg"
         >
-          বাংলা ম্যাচ
+          বাংলা ক্যান্ডি
         </motion.h1>
         <p className="font-display text-slate-400 mt-2 text-sm tracking-wide">
-          Match the Bengali character pairs
+          Swap adjacent tiles to match 3 or more
         </p>
       </div>
 
@@ -44,7 +44,7 @@ export function StartScreen() {
             >
               {difficultyConfig[d].label}
               <span className="block font-display text-xs font-normal mt-0.5">
-                {difficultyConfig[d].pairs} pairs
+                {difficultyConfig[d].moves} moves
               </span>
             </button>
           ))}

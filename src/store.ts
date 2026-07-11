@@ -1,118 +1,181 @@
 import { create } from 'zustand';
-import { buildDeck, type CardData, type Difficulty } from './data/characters';
+import {
+  createGrid,
+  findMatches,
+  applyGravityAndRefill,
+  hasPossibleMoves,
+  GRID_SIZE,
+  type Tile,
+  type Difficulty,
+  difficultyConfig,
+} from './data/tiles';
 
-type Screen = 'start' | 'playing' | 'won';
+type Screen = 'start' | 'playing' | 'won' | 'lost';
 
 interface GameState {
   screen: Screen;
   difficulty: Difficulty;
-  cards: CardData[];
-  flippedUids: number[];
-  moves: number;
-  matches: number;
-  totalPairs: number;
-  startTime: number;
-  elapsed: number;
-  lock: boolean;
+  grid: Tile[][];
+  selected: [number, number] | null;
+  score: number;
+  movesLeft: number;
+  target: number;
+  busy: boolean;
+  shakeId: number;
 
   startGame: (difficulty: Difficulty) => void;
-  flipCard: (uid: number) => void;
+  selectTile: (r: number, c: number) => void;
   resetGame: () => void;
-  tick: () => void;
+}
+
+function swapTiles(grid: Tile[][], r1: number, c1: number, r2: number, c2: number): Tile[][] {
+  const newGrid = grid.map((row) => [...row]);
+  const tmp = newGrid[r1][c1];
+  newGrid[r1][c1] = newGrid[r2][c2];
+  newGrid[r2][c2] = tmp;
+  return newGrid;
+}
+
+function isAdjacent(r1: number, c1: number, r2: number, c2: number): boolean {
+  return Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1;
+}
+
+function calcScore(matchCount: number): number {
+  if (matchCount <= 3) return 60;
+  if (matchCount === 4) return 120;
+  return 200 + (matchCount - 5) * 50;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
   screen: 'start',
   difficulty: 'medium',
-  cards: [],
-  flippedUids: [],
-  moves: 0,
-  matches: 0,
-  totalPairs: 0,
-  startTime: 0,
-  elapsed: 0,
-  lock: false,
+  grid: [],
+  selected: null,
+  score: 0,
+  movesLeft: 0,
+  target: 0,
+  busy: false,
+  shakeId: 0,
 
   startGame: (difficulty) => {
-    const cards = buildDeck(difficulty);
-    const totalPairs = cards.length / 2;
+    let grid = createGrid();
+    let safety = 0;
+    while (findMatches(grid).size > 0 && safety < 20) {
+      grid = createGrid();
+      safety++;
+    }
+    if (!hasPossibleMoves(grid)) grid = createGrid();
     set({
       screen: 'playing',
       difficulty,
-      cards,
-      flippedUids: [],
-      moves: 0,
-      matches: 0,
-      totalPairs,
-      startTime: Date.now(),
-      elapsed: 0,
-      lock: false,
+      grid,
+      selected: null,
+      score: 0,
+      movesLeft: difficultyConfig[difficulty].moves,
+      target: difficultyConfig[difficulty].target,
+      busy: false,
+      shakeId: 0,
     });
   },
 
-  flipCard: (uid) => {
+  selectTile: (r, c) => {
     const state = get();
-    if (state.lock) return;
-    const card = state.cards.find((c) => c.uid === uid);
-    if (!card || card.flipped || card.matched) return;
-    if (state.flippedUids.length >= 2) return;
+    if (state.busy || state.screen !== 'playing') return;
 
-    const newCards = state.cards.map((c) =>
-      c.uid === uid ? { ...c, flipped: true } : c
-    );
-    const newFlipped = [...state.flippedUids, uid];
-    set({ cards: newCards, flippedUids: newFlipped });
-
-    if (newFlipped.length === 2) {
-      set({ lock: true, moves: state.moves + 1 });
-      const [a, b] = newFlipped;
-      const cardA = newCards.find((c) => c.uid === a)!;
-      const cardB = newCards.find((c) => c.uid === b)!;
-
-      if (cardA.charId === cardB.charId) {
-        setTimeout(() => {
-          const s = get();
-          set({
-            cards: s.cards.map((c) =>
-              c.uid === a || c.uid === b ? { ...c, matched: true } : c
-            ),
-            flippedUids: [],
-            lock: false,
-            matches: s.matches + 1,
-            screen: s.matches + 1 === s.totalPairs ? 'won' : 'playing',
-          });
-        }, 600);
-      } else {
-        setTimeout(() => {
-          const s = get();
-          set({
-            cards: s.cards.map((c) =>
-              c.uid === a || c.uid === b ? { ...c, flipped: false } : c
-            ),
-            flippedUids: [],
-            lock: false,
-          });
-        }, 900);
-      }
+    if (!state.selected) {
+      set({ selected: [r, c] });
+      return;
     }
+
+    const [sr, sc] = state.selected;
+    if (sr === r && sc === c) {
+      set({ selected: null });
+      return;
+    }
+
+    if (!isAdjacent(sr, sc, r, c)) {
+      set({ selected: [r, c] });
+      return;
+    }
+
+    const swapped = swapTiles(state.grid, sr, sc, r, c);
+    const matches = findMatches(swapped);
+    if (matches.size === 0) {
+      set({ grid: swapped, selected: null, shakeId: state.shakeId + 1 });
+      setTimeout(() => {
+        const s = get();
+        set({ grid: swapTiles(s.grid, sr, sc, r, c) });
+      }, 300);
+      return;
+    }
+
+    set({ grid: swapped, selected: null, busy: true, movesLeft: state.movesLeft - 1 });
+    processCascades(swapped, matches, set, get);
   },
 
   resetGame: () => {
     set({
       screen: 'start',
-      cards: [],
-      flippedUids: [],
-      moves: 0,
-      matches: 0,
-      totalPairs: 0,
-      elapsed: 0,
-      lock: false,
+      grid: [],
+      selected: null,
+      score: 0,
+      movesLeft: 0,
+      target: 0,
+      busy: false,
+      shakeId: 0,
     });
   },
-
-  tick: () => {
-    const state = get();
-    if (state.screen !== 'playing') return;
-    set({ elapsed: Math.floor((Date.now() - state.startTime) / 1000) });
-  },
 }));
+
+function processCascades(
+  grid: Tile[][],
+  matches: Set<string>,
+  set: (partial: Partial<GameState>) => void,
+  get: () => GameState,
+) {
+  let currentGrid = grid;
+  let totalScore = get().score;
+  let cascade = 0;
+
+  const step = () => {
+    const matchCount = matches.size;
+    totalScore += calcScore(matchCount) * (1 + cascade * 0.5);
+    cascade++;
+
+    const cleared = matches;
+    currentGrid = currentGrid.map((row, ri) =>
+      row.map((tile, ci) =>
+        cleared.has(`${ri},${ci}`) ? { ...tile, clearing: true } : tile,
+      ),
+    );
+
+    set({ grid: currentGrid, score: Math.floor(totalScore) });
+
+    setTimeout(() => {
+      currentGrid = applyGravityAndRefill(currentGrid, cleared);
+      set({ grid: currentGrid });
+
+      const newMatches = findMatches(currentGrid);
+      if (newMatches.size > 0) {
+        matches = newMatches;
+        setTimeout(step, 250);
+      } else {
+        const s = get();
+        const won = s.score >= s.target;
+        const lost = !won && s.movesLeft <= 0;
+        set({
+          busy: false,
+          screen: won ? 'won' : lost ? 'lost' : 'playing',
+        });
+        if (!won && !lost && !hasPossibleMoves(currentGrid)) {
+          setTimeout(() => {
+            const fresh = createGrid();
+            set({ grid: fresh });
+          }, 300);
+        }
+      }
+    }, 300);
+  };
+
+  step();
+}

@@ -1,21 +1,17 @@
 import { motion } from 'framer-motion';
-import { Trophy, RefreshCw, Chrome as Home } from 'lucide-react';
+import { Trophy, RefreshCw, Chrome as Home, Frown } from 'lucide-react';
 import { useGameStore } from '../store';
-import { difficultyConfig } from '../data/characters';
-
-function formatTime(s: number) {
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return `${m}:${sec.toString().padStart(2, '0')}`;
-}
+import { difficultyConfig } from '../data/tiles';
 
 export function WinModal() {
-  const moves = useGameStore((s) => s.moves);
-  const elapsed = useGameStore((s) => s.elapsed);
-  const totalPairs = useGameStore((s) => s.totalPairs);
+  const screen = useGameStore((s) => s.screen);
+  const score = useGameStore((s) => s.score);
+  const target = useGameStore((s) => s.target);
   const difficulty = useGameStore((s) => s.difficulty);
   const startGame = useGameStore((s) => s.startGame);
   const resetGame = useGameStore((s) => s.resetGame);
+
+  const won = screen === 'won';
 
   return (
     <motion.div
@@ -32,23 +28,25 @@ export function WinModal() {
         <motion.div
           animate={{ rotate: [0, -10, 10, 0], scale: [1, 1.15, 1] }}
           transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 1.5 }}
-          className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 mb-4 shadow-lg shadow-amber-900/40"
+          className={`inline-flex items-center justify-center w-20 h-20 rounded-full mb-4 shadow-lg ${
+            won
+              ? 'bg-gradient-to-br from-amber-400 to-amber-500 shadow-amber-900/40'
+              : 'bg-gradient-to-br from-slate-600 to-slate-700 shadow-slate-900/40'
+          }`}
         >
-          <Trophy className="w-10 h-10 text-amber-900" />
+          {won ? <Trophy className="w-10 h-10 text-amber-900" /> : <Frown className="w-10 h-10 text-slate-300" />}
         </motion.div>
 
-        <h2 className="font-bengali text-3xl font-bold text-zen-400 mb-1">দারুণ!</h2>
-        <p className="font-display text-slate-400 text-sm mb-6">You matched all {totalPairs} pairs</p>
+        <h2 className="font-bengali text-3xl font-bold text-zen-400 mb-1">
+          {won ? 'দারুণ!' : 'আবার চেষ্টা করুন'}
+        </h2>
+        <p className="font-display text-slate-400 text-sm mb-6">
+          {won ? `You reached ${target} points!` : `You needed ${target} but scored ${score}`}
+        </p>
 
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="rounded-xl bg-slate-800/80 border border-slate-700 py-4">
-            <p className="font-display text-xs text-slate-500 uppercase tracking-wide">Time</p>
-            <p className="font-display text-2xl font-bold text-zen-400 tabular-nums">{formatTime(elapsed)}</p>
-          </div>
-          <div className="rounded-xl bg-slate-800/80 border border-slate-700 py-4">
-            <p className="font-display text-xs text-slate-500 uppercase tracking-wide">Moves</p>
-            <p className="font-display text-2xl font-bold text-zen-400 tabular-nums">{moves}</p>
-          </div>
+        <div className="rounded-xl bg-slate-800/80 border border-slate-700 py-4 mb-6">
+          <p className="font-display text-xs text-slate-500 uppercase tracking-wide">Final Score</p>
+          <p className="font-display text-3xl font-bold text-zen-400 tabular-nums">{score}</p>
         </div>
 
         <div className="flex gap-3">

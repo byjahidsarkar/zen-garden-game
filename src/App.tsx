@@ -1,36 +1,23 @@
-import { useEffect } from 'react';
 import { useGameStore } from './store';
 import { StartScreen } from './components/StartScreen';
-import { GameBoard } from './components/GameBoard';
-import { StatsBar } from './components/StatsBar';
+import { Match3Board } from './components/Match3Board';
+import { ScoreBar } from './components/ScoreBar';
 import { WinModal } from './components/WinModal';
 
 export default function App() {
   const screen = useGameStore((s) => s.screen);
-  const tick = useGameStore((s) => s.tick);
-
-  useEffect(() => {
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [tick]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 flex flex-col">
-      <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-2xl mx-auto w-full py-8">
+      <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-lg mx-auto w-full py-8">
         {screen === 'start' && <StartScreen />}
-        {screen === 'playing' && (
+        {(screen === 'playing' || screen === 'won' || screen === 'lost') && (
           <>
-            <StatsBar />
-            <GameBoard />
+            <ScoreBar />
+            <Match3Board />
           </>
         )}
-        {screen === 'won' && (
-          <>
-            <StatsBar />
-            <GameBoard />
-            <WinModal />
-          </>
-        )}
+        {(screen === 'won' || screen === 'lost') && <WinModal />}
       </div>
     </div>
   );
